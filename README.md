@@ -14,6 +14,21 @@ Authorization: Bearer YOUR_TOKEN
 
 ---
 
+## 🔤 Path & Naming Rules
+
+When creating folders or uploading files, the following naming restrictions apply:
+
+- **Allowed characters**: Only letters, numbers, dashes, and underscores
+  - ✅ `my-folder`, `project_123`, `reports2025`
+- **Prohibited characters**: Spaces, dots, slashes, and special characters
+  - ❌ `my folder`, `project.files`, `reports/2025`, `data$info`
+- **URL safety**: Folder names are used in URLs, so they must be URL-safe
+- **Error handling**: Invalid names will return a 400 status code with message "Invalid folder name"
+
+These restrictions help ensure consistent behavior across different operating systems and web environments.
+
+---
+
 ## 📦 Endpoints
 
 ### 1. **Create Folder**
@@ -311,4 +326,3 @@ Docker image TBD. Runs as a single container. Will serve static public files via
 ---
 
 MIT licensed. Built for automation.
-
