@@ -1,6 +1,5 @@
 # Dependencies
 node_modules/
-package-lock.json
 
 # Environment variables
 .env
@@ -22,3 +21,32 @@ pids
 
 # OS
 .DS_Store
+
+# Do not commit uploaded test files
+private/*
+!private/.gitkeep
+test_files/
+
+# Test output or temp files
+*.tmp
+*.bak
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Editor-specific
+.vscode/
+.idea/
+
+# System files
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Shell history
+*.swp
+*.swo
+
+# Docker artifacts
+*.tar
