@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  file-api:
+    build: .
+    ports:
+      - "${PORT:-3000}:${PORT:-3000}"
+    volumes:
+      - ./public:/app/public
+    environment:
+      - API_TOKEN=${API_TOKEN}
+      - PORT=${PORT:-3000}
+      - PUBLIC_URL=${PUBLIC_URL}
+    restart: unless-stopped
