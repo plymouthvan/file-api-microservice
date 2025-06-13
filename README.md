@@ -1,8 +1,50 @@
 # 📁 File API Microservice
 
-A lightweight, Dockerized file API for programmatic file and folder operations — including upload, delete, rename, and optional public exposure of files and folders. Built for workflows like n8n and other automation systems.
+A lightweight, Dockerized file API for programmatic file and folder operations — including upload, delete, rename, and optional public exposure of files and folders. Built specifically for no-code and low-code automation platforms (like n8n, Make, Zapier) that need simple file operations via HTTP without setting up complex object storage or cloud file managers.
+
+## 🎯 Purpose
+
+This microservice provides a simple, self-hostable HTTP interface for managing files, especially for automation workflows that need to:
+- Upload files and get public URLs back
+- Organize files into folders
+- Expose or hide folders as needed
+- Perform basic file operations without proprietary lock-in
+- Avoid bloated solutions when a lightweight API is sufficient
 
 ---
+
+## 🚀 Quick Start
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/plymouthvan/file-api-microservice.git
+cd file-api-microservice
+```
+
+### 2. Create a .env file
+```bash
+cp .env.example .env
+```
+
+Edit the .env file with your settings:
+```
+API_TOKEN=your_secure_token
+PORT=3000
+PUBLIC_URL=https://yourdomain.com
+```
+
+### 3. Run with Docker Compose
+```bash
+docker-compose up -d
+```
+
+This will:
+- Build the Docker image
+- Mount the `./public` directory to `/app/public` inside the container
+- Expose the service on the specified port (default: 3000)
+- Set up the API with your token and public URL
+
+Your API is now running at http://localhost:3000 (or your specified port)!
 
 ## 🔐 Authentication
 
@@ -11,6 +53,40 @@ All modifying endpoints require a bearer token in the request header:
 ```
 Authorization: Bearer YOUR_TOKEN
 ```
+
+## 💡 Example Use Case
+
+**Scenario**: Automation workflow needs to download a file and make it publicly accessible
+
+1. **n8n or similar tool downloads a file** from an external source
+2. **POST the file to this API**:
+   ```javascript
+   // Example HTTP Request node in n8n
+   {
+     "url": "http://localhost:3000/upload",
+     "method": "POST",
+     "headers": {
+       "Authorization": "Bearer YOUR_TOKEN",
+       "Content-Type": "application/json"
+     },
+     "body": {
+       "folder": "customer-reports",
+       "filename": "report-2025.pdf",
+       "base64": "{{$node['Download_File'].data.base64}}",
+       "mimetype": "application/pdf",
+       "expose": true
+     }
+   }
+   ```
+3. **Receive a public URL** in the response:
+   ```json
+   {
+     "status": "ok",
+     "url": "https://yourdomain.com/public/customer-reports/report-2025.pdf",
+     "...": "..."
+   }
+   ```
+4. **Use the URL** in subsequent steps (email, webhook, etc.)
 
 ---
 
@@ -23,9 +99,16 @@ When creating folders or uploading files, the following naming restrictions appl
 - **Prohibited characters**: Spaces, dots, slashes, and special characters
   - ❌ `my folder`, `project.files`, `reports/2025`, `data$info`
 - **URL safety**: Folder names are used in URLs, so they must be URL-safe
-- **Error handling**: Invalid names will return a 400 status code with message "Invalid folder name"
+- **Error handling**: Invalid names will return a 400 status code with this error:
+  ```json
+  {
+    "status": "error",
+    "message": "Invalid folder name",
+    "code": 400
+  }
+  ```
 
-These restrictions help ensure consistent behavior across different operating systems and web environments.
+These restrictions are **intentional by design** to ensure consistent behavior across different operating systems and web environments. Since folder names become part of public URLs, they must follow URL-safe naming conventions.
 
 ---
 
@@ -310,9 +393,15 @@ No auth required. Returns raw file bytes.
 
 ---
 
-## 🚀 Deployment
+## 🔧 Configuration
 
-Docker image TBD. Runs as a single container. Will serve static public files via `/public`, and provide the JSON API on the same port.
+The service uses the following environment variables:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `API_TOKEN` | Authentication token for API requests | (required) |
+| `PORT` | Port to run the service on | 3000 |
+| `PUBLIC_URL` | Base URL for public file links | (required) |
 
 ---
 
